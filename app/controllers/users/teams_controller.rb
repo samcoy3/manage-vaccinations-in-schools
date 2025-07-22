@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-class Users::OrganisationsController < ApplicationController
-  skip_before_action :set_selected_organisation
+class Users::TeamsController < ApplicationController
+  skip_before_action :set_selected_team
   skip_after_action :verify_policy_scoped
 
   before_action :redirect_to_dashboard_if_cis2_is_enabled
-  before_action :set_organisations
+  before_action :set_teams
 
   layout "two_thirds"
 
@@ -13,13 +13,13 @@ class Users::OrganisationsController < ApplicationController
   end
 
   def create
-    organisation = current_user.organisations.find(params[:organisation_id])
+    team = @teams.find(params[:team_id])
 
-    if organisation.present?
+    if team.present?
       session["cis2_info"] = {
         "selected_org" => {
-          "name" => organisation.name,
-          "code" => organisation.ods_code
+          "name" => team.name,
+          "code" => team.ods_code
         },
         "selected_role" => {
           "code" => valid_cis2_roles.first,
@@ -39,7 +39,7 @@ class Users::OrganisationsController < ApplicationController
     redirect_to dashboard_path if Settings.cis2.enabled
   end
 
-  def set_organisations
-    @organisations = current_user.organisations
+  def set_teams
+    @teams = current_user.teams
   end
 end

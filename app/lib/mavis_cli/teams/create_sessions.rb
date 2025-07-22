@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module MavisCLI
-  module Organisations
+  module Teams
     class CreateSessions < Dry::CLI::Command
       desc "Create sessions for all locations"
 
@@ -16,21 +16,21 @@ module MavisCLI
       def call(ods_code:, academic_year: nil)
         MavisCLI.load_rails
 
-        organisation = Organisation.find_by(ods_code:)
+        team = Team.find_by(ods_code:)
 
-        if organisation.nil?
-          warn "Could not find organisation."
+        if team.nil?
+          warn "Could not find team."
           return
         end
 
         academic_year ||= AcademicYear.pending
 
-        OrganisationSessionsFactory.call(organisation, academic_year:)
+        TeamSessionsFactory.call(team, academic_year:)
       end
     end
   end
 
-  register "organisations" do |prefix|
-    prefix.register "create-sessions", Organisations::CreateSessions
+  register "teams" do |prefix|
+    prefix.register "create-sessions", Teams::CreateSessions
   end
 end

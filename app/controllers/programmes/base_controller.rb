@@ -22,7 +22,7 @@ class Programmes::BaseController < ApplicationController
 
   def patients
     @patients ||=
-      current_organisation.patients.appear_in_programmes(
+      current_team.patients.appear_in_programmes(
         [@programme],
         academic_year: @academic_year
       )

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-class OrganisationSessionsFactory
-  def initialize(organisation, academic_year:)
-    @organisation = organisation
+class TeamSessionsFactory
+  def initialize(team, academic_year:)
+    @team = team
     @academic_year = academic_year
   end
 
@@ -17,25 +17,25 @@ class OrganisationSessionsFactory
 
   private
 
-  attr_reader :organisation, :academic_year
+  attr_reader :team, :academic_year
 
   def create_missing_sessions!
     ActiveRecord::Base.transaction do
-      organisation
+      team
         .locations
-        .includes(:organisation, :programmes)
+        .includes(:team, :programmes)
         .find_each { LocationSessionsFactory.call(it, academic_year:) }
     end
   end
 
   def destroy_orphaned_sessions!
     ActiveRecord::Base.transaction do
-      organisation
+      team
         .sessions
         .includes(:location, :session_programmes)
         .unscheduled
         .where(academic_year:)
-        .where.not(location: organisation.locations)
+        .where.not(location: team.locations)
         .where
         .missing(:patient_sessions)
         .destroy_all

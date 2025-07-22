@@ -3,7 +3,7 @@
 require_relative "../config/environment"
 require "caxlsx"
 
-class OrganisationExport
+class TeamExport
   HEADERS = {
     patient: [
       "Patient ID",
@@ -35,8 +35,8 @@ class OrganisationExport
     ]
   }.freeze
 
-  def initialize(organisation_id)
-    @organisation = Organisation.find(organisation_id)
+  def initialize(team_id)
+    @team = Team.find(team_id)
     setup_headers
   end
 
@@ -46,9 +46,9 @@ class OrganisationExport
 
     add_data_worksheet(workbook)
 
-    org = @organisation.name.parameterize
+    org = @team.name.parameterize
     timestamp = Time.current.strftime("%Y%m%d")
-    filename = "scratchpad/organisation-export-#{org}-#{timestamp}.xlsx"
+    filename = "scratchpad/team-export-#{org}-#{timestamp}.xlsx"
     package.serialize(filename)
 
     puts "Excel file created successfully: #{filename}"
@@ -75,8 +75,8 @@ class OrganisationExport
 
   def patients
     Patient
-      .joins(school: { subteam: :organisation })
-      .where(teams: { organisation_id: @organisation.id })
+      .joins(school: { subteam: :team })
+      .where(teams: { team_id: @team.id })
       .includes(
         :consents,
         :triages,
@@ -181,14 +181,14 @@ end
 
 # Script execution
 if ARGV.empty?
-  puts "Usage: #{$PROGRAM_NAME} <organisation_id>"
+  puts "Usage: #{$PROGRAM_NAME} <team_id>"
   exit 1
 end
 
 begin
-  OrganisationExport.new(ARGV[0]).generate
+  TeamExport.new(ARGV[0]).generate
 rescue ActiveRecord::RecordNotFound
-  puts "Error: Organisation not found"
+  puts "Error: Team not found"
   exit 1
 rescue StandardError => e
   puts "Error: #{e.message}"

@@ -1,10 +1,10 @@
-<% legend = "Select an organisation" %>
+<% legend = "Select a team" %>
 
 <% content_for :page_title, legend %>
 
-<%= form_with url: users_organisations_path, method: :post do |f| %>
-  <%= f.govuk_collection_radio_buttons :organisation_id,
-                                       @organisations,
+<%= form_with url: users_teams_path, method: :post do |f| %>
+  <%= f.govuk_collection_radio_buttons :team_id,
+                                       @teams,
                                        :id,
                                        :name,
                                        :ods_code,

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-class OrganisationsController < ApplicationController
+class TeamsController < ApplicationController
   skip_after_action :verify_policy_scoped
 
   def show
-    @organisation = current_organisation
+    @team = current_user.selected_team
   end
 end
