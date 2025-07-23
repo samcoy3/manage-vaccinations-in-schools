@@ -7,7 +7,7 @@
                                        @teams,
                                        :id,
                                        :name,
-                                       :ods_code,
+                                       -> { _1.organisation.ods_code },
                                        legend: { text: legend, size: "xl", tag: "h1" } %>
 
   <%= f.govuk_submit %>

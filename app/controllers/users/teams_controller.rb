@@ -19,7 +19,7 @@ class Users::TeamsController < ApplicationController
       session["cis2_info"] = {
         "selected_org" => {
           "name" => team.name,
-          "code" => team.ods_code
+          "code" => team.organisation.ods_code
         },
         "selected_role" => {
           "code" => valid_cis2_roles.first,
@@ -40,6 +40,6 @@ class Users::TeamsController < ApplicationController
   end
 
   def set_teams
-    @teams = current_user.teams
+    @teams = current_user.teams.includes(:organisation)
   end
 end

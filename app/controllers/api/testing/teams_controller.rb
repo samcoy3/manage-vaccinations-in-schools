@@ -8,7 +8,14 @@ class API::Testing::TeamsController < API::Testing::BaseController
     response.headers["Cache-Control"] = "no-cache"
 
     keep_itself = ActiveModel::Type::Boolean.new.cast(params[:keep_itself])
-    team = Team.find_by!(ods_code: params[:ods_code])
+
+    # TODO: Select the right team based on an identifier.
+    team =
+      Team.joins(:organisation).find_by!(
+        organisation: {
+          ods_code: params[:ods_code]
+        }
+      )
 
     @start_time = Time.zone.now
 
@@ -55,7 +62,11 @@ class API::Testing::TeamsController < API::Testing::BaseController
         log_destroy(VaccinationRecord.where(batch: batches))
         log_destroy(batches)
 
-        log_destroy(VaccinationRecord.where(performed_ods_code: team.ods_code))
+        log_destroy(
+          VaccinationRecord.where(
+            performed_ods_code: team.organisation.ods_code
+          )
+        )
 
         unless keep_itself
           log_destroy(SessionProgramme.where(session: sessions))
@@ -74,6 +85,7 @@ class API::Testing::TeamsController < API::Testing::BaseController
 
     response.stream.write "Done"
   rescue StandardError => e
+    Rails.logger.debug e
     response.stream.write "Error: #{e.message}\n"
   ensure
     response.stream.close
