@@ -5,7 +5,9 @@ class OneTimeTokensController < ApplicationController
   include TokenAuthenticationConcern
 
   skip_before_action :authenticate_user!
-  before_action :ensure_reporting_app_feature_enabled, :authenticate_app_by_client_id!, :verify_grant_type!
+  before_action :ensure_reporting_app_feature_enabled,
+                :authenticate_app_by_client_id!,
+                :verify_grant_type!
 
   def authorize
     skip_policy_scope

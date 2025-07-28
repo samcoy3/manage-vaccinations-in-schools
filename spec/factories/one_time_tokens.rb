@@ -5,10 +5,11 @@
 # Table name: one_time_tokens
 #
 #  cis2_info  :jsonb
+#  jsonb      :jsonb
 #  token      :string           not null, primary key
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
-#  user_id    :bigint
+#  user_id    :bigint           not null
 #
 # Indexes
 #
