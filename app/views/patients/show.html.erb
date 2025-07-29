@@ -19,6 +19,10 @@
 <% end %>
 
 <%= render AppCardComponent.new(section: true) do |card| %>
+  <%= render AppPatientProgrammesTableComponent.new(@patient, programmes: policy_scope(Programme)) %>
+<% end %>
+
+<%= render AppCardComponent.new(section: true) do |card| %>
   <% card.with_heading { "Cohorts" } %>
   <%= render AppPatientCohortTableComponent.new(@patient, current_user:) %>
 <% end %>
