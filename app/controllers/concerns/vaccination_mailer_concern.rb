@@ -59,8 +59,10 @@ module VaccinationMailerConcern
       ConsentGrouper.call(patient.consents, programme_id:, academic_year:)
 
     parents =
-      if consents.any?(&:via_self_consent?)
-        consents.any?(&:notify_parents) ? patient.parents : []
+      if !vaccination_record.notify_parents?
+        []
+      elsif consents.any?(&:via_self_consent?)
+        patient.parents
       else
         consents.select(&:response_given?).filter_map(&:parent)
       end

@@ -539,6 +539,21 @@ describe NHS::ImmunisationsAPI do
         it { should be true }
       end
     end
+
+    context "when the patient has requested that their parents aren't notified" do
+      before do
+        create(
+          :consent,
+          :given,
+          :self_consent,
+          patient:,
+          programme:,
+          notify_parents: false
+        )
+      end
+
+      it { should be false }
+    end
   end
 
   describe "next_sync_action" do
