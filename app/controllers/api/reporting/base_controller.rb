@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ReportingAPI::BaseController < ActionController::API
+class API::Reporting::BaseController < ActionController::API
   # we need to still include the AuthenticationConcern even though
   # we're not using the authenticate_user! callback, because we call it
   # explicitly after validating the users' JWT in order to use the

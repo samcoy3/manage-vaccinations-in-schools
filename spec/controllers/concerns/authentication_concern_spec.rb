@@ -64,14 +64,14 @@ describe AuthenticationConcern do
 
     before do
       sample_class.session = { "cis2_info" => session_cis2_info }
-      allow(OneTimeToken).to receive(:find_or_generate_for!).with(
+      allow(Reporting::OneTimeToken).to receive(:find_or_generate_for!).with(
         user: user,
         cis2_info: session_cis2_info
       ).and_return(token)
     end
 
     it "finds or generates a OneTimeToken for the given user with the cis2_info from the current session" do
-      expect(OneTimeToken).to receive(:find_or_generate_for!).with(
+      expect(Reporting::OneTimeToken).to receive(:find_or_generate_for!).with(
         user: user,
         cis2_info: session_cis2_info
       )
@@ -108,7 +108,7 @@ describe AuthenticationConcern do
 
     context "when there is a redirect_uri key in session" do
       before do
-        allow(OneTimeToken).to receive(:find_or_generate_for!).with(
+        allow(Reporting::OneTimeToken).to receive(:find_or_generate_for!).with(
           user: user,
           cis2_info: session_cis2_info
         ).and_return(token)

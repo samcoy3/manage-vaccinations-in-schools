@@ -99,7 +99,7 @@ module AuthenticationConcern
     def add_auth_code_to(url, user)
       uri = Addressable::URI.parse(url)
       auth_code =
-        OneTimeToken.find_or_generate_for!(
+        Reporting::OneTimeToken.find_or_generate_for!(
           user:,
           cis2_info: session["cis2_info"]
         ).token

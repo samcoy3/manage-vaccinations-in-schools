@@ -94,7 +94,13 @@ Rails.application.routes.draw do
         post "/onboard", to: "onboard#create"
       end
     end
+    namespace :reporting do
+      post "authorize",
+           to: "one_time_tokens#authorize"
+      get "totals", controller: :totals, action: :index
+    end
   end
+
 
   resources :class_imports, path: "class-imports", except: %i[index destroy]
 
@@ -312,12 +318,6 @@ Rails.application.routes.draw do
     get "role-not-found", controller: :errors
 
     resource :organisations, only: %i[new create]
-  end
-
-  # for commissioner reporting app
-  post "/tokens/authorize", controller: :one_time_tokens, action: "authorize"
-  namespace :reporting_api, path: "/reporting-api/" do
-    get "totals", controller: :totals, action: :index
   end
 
   scope via: :all do

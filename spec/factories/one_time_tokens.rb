@@ -22,7 +22,7 @@
 #  fk_rails_...  (user_id => users.id)
 #
 FactoryBot.define do
-  factory :one_time_token do
+  factory :one_time_token, class: Reporting::OneTimeToken do
     transient { prefix { Faker::Alphanumeric.alpha(number: 2).upcase } }
 
     user

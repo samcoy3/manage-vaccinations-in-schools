@@ -21,7 +21,10 @@
 #
 #  fk_rails_...  (user_id => users.id)
 #
-class OneTimeToken < ApplicationRecord
+#
+class Reporting::OneTimeToken < ApplicationRecord
+  self.table_name = "one_time_tokens"
+
   belongs_to :user
 
   validates :user_id, uniqueness: true
@@ -43,6 +46,6 @@ class OneTimeToken < ApplicationRecord
   end
 
   def expired?
-    created_at < OneTimeToken.expire_before
+    created_at < self.class.expire_before
   end
 end

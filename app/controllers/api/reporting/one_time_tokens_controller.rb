@@ -1,17 +1,15 @@
 # frozen_string_literal: true
 
-class OneTimeTokensController < ApplicationController
-  protect_from_forgery unless: -> { request.format.json? }
+class API::Reporting::OneTimeTokensController < API::Reporting::BaseController
   include TokenAuthenticationConcern
 
-  skip_before_action :authenticate_user!
+  # skip_before_action :authenticate_user!
   before_action :ensure_reporting_app_feature_enabled,
                 :authenticate_app_by_client_id!,
                 :verify_grant_type!
 
   def authorize
-    skip_policy_scope
-    @token = OneTimeToken.find_by!(token: params[:code])
+    @token = Reporting::OneTimeToken.find_by!(token: params[:code])
     @token.delete # <- Tokens are one-time use
     json_data = { jwt: jwt(@token) }
     render json: json_data

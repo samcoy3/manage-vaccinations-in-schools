@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe ReportingAPI::TotalsController do
+RSpec.describe API::Reporting::TotalsController do
   let(:user) { create(:user) }
   let(:org) { user.organisations.first }
 
