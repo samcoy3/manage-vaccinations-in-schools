@@ -420,6 +420,56 @@ describe Patient do
     end
   end
 
+  describe "#archived?" do
+    subject(:archived?) { patient.archived?(organisation:) }
+
+    let(:patient) { create(:patient) }
+    let(:organisation) { create(:organisation) }
+
+    context "without an archive reason" do
+      it { should be(false) }
+    end
+
+    context "with an archive reason for the organisation" do
+      before do
+        create(:archive_reason, :moved_out_of_area, organisation:, patient:)
+      end
+
+      it { should be(true) }
+    end
+
+    context "with an archive reason for a different organisation" do
+      before { create(:archive_reason, :imported_in_error, patient:) }
+
+      it { should be(false) }
+    end
+  end
+
+  describe "#not_archived?" do
+    subject(:not_archived?) { patient.not_archived?(organisation:) }
+
+    let(:patient) { create(:patient) }
+    let(:organisation) { create(:organisation) }
+
+    context "without an archive reason" do
+      it { should be(true) }
+    end
+
+    context "with an archive reason for the organisation" do
+      before do
+        create(:archive_reason, :moved_out_of_area, organisation:, patient:)
+      end
+
+      it { should be(false) }
+    end
+
+    context "with an archive reason for a different organisation" do
+      before { create(:archive_reason, :imported_in_error, patient:) }
+
+      it { should be(true) }
+    end
+  end
+
   describe "#initials" do
     subject(:initials) { patient.initials }
 
