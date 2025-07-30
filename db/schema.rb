@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_29_115701) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_30_052926) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -33,6 +33,20 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_29_115701) do
     t.datetime "updated_at", null: false
     t.index ["session_id"], name: "index_active_record_sessions_on_session_id", unique: true
     t.index ["updated_at"], name: "index_active_record_sessions_on_updated_at"
+  end
+
+  create_table "archive_reasons", force: :cascade do |t|
+    t.bigint "organisation_id", null: false
+    t.bigint "patient_id", null: false
+    t.bigint "created_by_user_id"
+    t.integer "type", null: false
+    t.string "other_details", default: "", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_user_id"], name: "index_archive_reasons_on_created_by_user_id"
+    t.index ["organisation_id", "patient_id"], name: "index_archive_reasons_on_organisation_id_and_patient_id", unique: true
+    t.index ["organisation_id"], name: "index_archive_reasons_on_organisation_id"
+    t.index ["patient_id"], name: "index_archive_reasons_on_patient_id"
   end
 
   create_table "audits", force: :cascade do |t|
@@ -870,6 +884,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_29_115701) do
 
   add_foreign_key "access_log_entries", "patients"
   add_foreign_key "access_log_entries", "users"
+  add_foreign_key "archive_reasons", "organisations"
+  add_foreign_key "archive_reasons", "patients"
+  add_foreign_key "archive_reasons", "users", column: "created_by_user_id"
   add_foreign_key "batches", "organisations"
   add_foreign_key "batches", "vaccines"
   add_foreign_key "batches_immunisation_imports", "batches"

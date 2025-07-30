@@ -29,6 +29,10 @@
 describe Organisation do
   subject(:organisation) { build(:organisation) }
 
+  describe "associations" do
+    it { should have_many(:archive_reasons) }
+  end
+
   describe "validations" do
     it { should validate_presence_of(:email) }
     it { should validate_presence_of(:name) }
