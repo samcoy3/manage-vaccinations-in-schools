@@ -9,7 +9,29 @@ describe PatientPolicy do
     let(:another_organisation) { create(:organisation, programmes:) }
     let(:user) { create(:user, organisation:) }
 
-    context "when patient is in a session" do
+    context "when a patient is archived" do
+      let(:patient_archived_in_organisation) { create(:patient) }
+      let(:patient_not_archived_in_organisation) { create(:patient) }
+
+      before do
+        create(
+          :archive_reason,
+          :imported_in_error,
+          patient: patient_archived_in_organisation,
+          organisation:
+        )
+        create(
+          :archive_reason,
+          :other,
+          patient: patient_not_archived_in_organisation,
+          organisation: another_organisation
+        )
+      end
+
+      it { should contain_exactly(patient_archived_in_organisation) }
+    end
+
+    context "when a patient is in a session" do
       let(:patient_in_session) { create(:patient) }
       let(:patient_not_in_session) { create(:patient) }
 
