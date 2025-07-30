@@ -24,7 +24,8 @@ describe PatientMerger do
     let(:user) { create(:user) }
 
     let(:programme) { create(:programme, :hpv) }
-    let(:session) { create(:session, programmes: [programme]) }
+    let(:organisation) { create(:organisation, programmes: [programme]) }
+    let(:session) { create(:session, organisation:, programmes: [programme]) }
 
     let!(:patient_to_keep) { create(:patient, year_group: 8) }
     let!(:patient_to_destroy) { create(:patient, year_group: 8) }
@@ -187,6 +188,60 @@ describe PatientMerger do
         expect { parent_relationship.reload }.to raise_error(
           ActiveRecord::RecordNotFound
         )
+      end
+    end
+
+    context "when patient to keep is archived" do
+      before do
+        create(
+          :archive_reason,
+          :moved_out_of_area,
+          patient: patient_to_keep,
+          organisation:
+        )
+      end
+
+      it "removes the archive on the patient" do
+        expect { call }.to change(ArchiveReason, :count).by(-1)
+        expect(patient_to_keep.archived?(organisation:)).to be(false)
+      end
+    end
+
+    context "when patient to destroy is archived" do
+      before do
+        create(
+          :archive_reason,
+          :moved_out_of_area,
+          patient: patient_to_destroy,
+          organisation:
+        )
+      end
+
+      it "removes the archive on the patient" do
+        expect { call }.to change(ArchiveReason, :count).by(-1)
+        expect(patient_to_keep.archived?(organisation:)).to be(false)
+      end
+    end
+
+    context "when both patients are archived" do
+      before do
+        create(
+          :archive_reason,
+          :moved_out_of_area,
+          patient: patient_to_keep,
+          organisation:
+        )
+        create(
+          :archive_reason,
+          :moved_out_of_area,
+          patient: patient_to_destroy,
+          organisation:
+        )
+      end
+
+      it "removes the archive on the patient" do
+        expect { call }.to change(ArchiveReason, :count).by(-1)
+        expect(patient_to_keep.archived?(organisation:)).to be(true)
       end
     end
   end

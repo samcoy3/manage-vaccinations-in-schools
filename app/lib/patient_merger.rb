@@ -13,6 +13,27 @@ class PatientMerger
       patient_to_destroy.access_log_entries.update_all(
         patient_id: patient_to_keep.id
       )
+
+      patient_to_keep_archive_reasons = patient_to_keep.archive_reasons.clone
+
+      patient_to_keep_archive_reasons.find_each do |archive_reason|
+        unless patient_to_destroy.archive_reasons.exists?(
+                 organisation_id: archive_reason.organisation_id
+               )
+          archive_reason.destroy!
+        end
+      end
+
+      patient_to_destroy.archive_reasons.find_each do |archive_reason|
+        if patient_to_keep_archive_reasons.any? {
+             it.organisation_id == archive_reason.organisation_id
+           }
+          archive_reason.destroy!
+        else
+          archive_reason.update!(patient: patient_to_keep)
+        end
+      end
+
       patient_to_destroy.consent_notifications.update_all(
         patient_id: patient_to_keep.id
       )
