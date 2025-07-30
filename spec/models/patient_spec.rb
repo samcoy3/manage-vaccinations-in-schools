@@ -53,6 +53,56 @@ describe Patient do
   end
 
   describe "scopes" do
+    describe "#archived" do
+      subject(:scope) { described_class.archived(organisation:) }
+
+      let(:patient) { create(:patient) }
+      let(:organisation) { create(:organisation) }
+
+      context "without an archive reason" do
+        it { should_not include(patient) }
+      end
+
+      context "with an archive reason for the organisation" do
+        before do
+          create(:archive_reason, :moved_out_of_area, organisation:, patient:)
+        end
+
+        it { should include(patient) }
+      end
+
+      context "with an archive reason for a different organisation" do
+        before { create(:archive_reason, :imported_in_error, patient:) }
+
+        it { should_not include(patient) }
+      end
+    end
+
+    describe "#not_archived" do
+      subject(:scope) { described_class.not_archived(organisation:) }
+
+      let(:patient) { create(:patient) }
+      let(:organisation) { create(:organisation) }
+
+      context "without an archive reason" do
+        it { should include(patient) }
+      end
+
+      context "with an archive reason for the organisation" do
+        before do
+          create(:archive_reason, :moved_out_of_area, organisation:, patient:)
+        end
+
+        it { should_not include(patient) }
+      end
+
+      context "with an archive reason for a different organisation" do
+        before { create(:archive_reason, :imported_in_error, patient:) }
+
+        it { should include(patient) }
+      end
+    end
+
     describe "#appear_in_programmes" do
       subject(:scope) do
         described_class.appear_in_programmes(programmes, academic_year:)
