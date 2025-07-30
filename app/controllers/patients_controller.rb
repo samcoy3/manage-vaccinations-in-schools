@@ -8,7 +8,12 @@ class PatientsController < ApplicationController
   before_action :record_access_log_entry, only: %i[show log]
 
   def index
-    patients = @form.apply(policy_scope(Patient).includes(:school).not_deceased)
+    patients =
+      @form.apply(
+        policy_scope(Patient).includes(:school).not_archived(
+          organisation: current_organisation
+        )
+      )
 
     @pagy, @patients = pagy(patients)
 

@@ -121,10 +121,8 @@ class Patient < ApplicationRecord
   scope :with_nhs_number, -> { where.not(nhs_number: nil) }
   scope :without_nhs_number, -> { where(nhs_number: nil) }
 
-  scope :not_deceased, -> { where(date_of_death: nil) }
   scope :deceased, -> { where.not(date_of_death: nil) }
-
-  scope :not_restricted, -> { where(restricted_at: nil) }
+  scope :not_deceased, -> { where(date_of_death: nil) }
   scope :restricted, -> { where.not(restricted_at: nil) }
 
   scope :with_notice, -> { deceased.or(restricted).or(invalidated) }
@@ -398,7 +396,11 @@ class Patient < ApplicationRecord
       self.date_of_death = pds_patient.date_of_death
 
       if date_of_death_changed?
-        clear_sessions_for_current_academic_year! unless date_of_death.nil?
+        if date_of_death.present?
+          archive_due_to_deceased!
+          clear_sessions_for_current_academic_year!
+        end
+
         self.date_of_death_recorded_at = Time.current
       end
 
@@ -503,6 +505,15 @@ class Patient < ApplicationRecord
     parents_to_check.each do |parent|
       parent.destroy! if parent.parent_relationships.count.zero?
     end
+  end
+
+  def archive_due_to_deceased!
+    archive_reasons =
+      organisations.map do |organisation|
+        ArchiveReason.new(organisation:, patient: self, type: :deceased)
+      end
+
+    ArchiveReason.import!(archive_reasons, on_duplicate_key_update: :all)
   end
 
   def clear_sessions_for_current_academic_year!
