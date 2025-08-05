@@ -107,22 +107,60 @@ module Inspect
 
     def pii_accessed?
       return false unless @show_pii
-      additional_types = Array(params[:additional_ids].keys).map(&:to_sym)
 
-      additional_types.any? do |type|
-        GraphRecords::DETAIL_WHITELIST.keys.include?(type)
+      additional_types = Array(params[:additional_ids].keys).map(&:to_sym)
+      return true if additional_types.any? { |type| GraphRecords::DETAIL_WHITELIST_PII.key?(type) }
+
+      build_traversals_config.values.flatten.any? do |rel|
+        type = @primary_type.to_s.classify.constantize
+        rel_class = type.reflect_on_association(rel)&.klass
+        rel_class && GraphRecords::DETAIL_WHITELIST_PII.key?(rel_class.name.underscore.to_sym)
       end
     end
+
 
     def record_access_log_entry
       if pii_accessed? && @primary_type == :patient
         patient = Patient.find(@primary_id)
+
+        # Build request details hash for ALL fields being accessed
+        request_details = build_request_details
+
         patient.access_log_entries.create!(
           user: current_user,
           controller: "graph",
-          action: "show_pii"
+          action: "show_pii",
+          request_details: request_details
         )
       end
+    end
+
+    def build_request_details
+      details = {}
+
+      # Process additional IDs
+      Array(params[:additional_ids]&.keys).each do |type|
+        add_fields_to_details(details, type.to_sym)
+      end
+
+      # Process traversal relationships
+      build_traversals_config.each do |type, relationships|
+        relationships.each do |rel|
+          binding.irb
+          next unless rel_class = type.to_s.classify.constantize.reflect_on_association(rel)&.klass
+
+          rel_type = rel_class.name.underscore.to_sym
+          add_fields_to_details(details, rel_type)
+        end
+      end
+
+      details
+    end
+
+    def add_fields_to_details(details, type_sym)
+      all_fields = GraphRecords::DETAIL_WHITELIST[type_sym]
+      all_fields += GraphRecords::DETAIL_WHITELIST_PII[type_sym] if GraphRecords::DETAIL_WHITELIST_PII.key?(type_sym)
+      details[type_sym] = all_fields.uniq if all_fields.any?
     end
   end
 end
