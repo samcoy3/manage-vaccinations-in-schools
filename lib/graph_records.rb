@@ -296,6 +296,11 @@ class GraphRecords
 
     objects.map do |klass, ids|
       class_name = klass.to_s.singularize
+      class_sym = class_name.to_sym
+
+      # Skip objects whose type is not in the traversal configuration
+      next unless traversals.key?(class_sym)
+
       associated_objects =
         load_association(class_name.classify.constantize.where(id: ids))
 
